@@ -1,0 +1,37 @@
+apps:
+  http:
+    servers:
+      server1:
+        listen:
+          - ":443"
+        routes:
+          - match:
+              - host:
+                  - 'example.com' # REPLACE WITH YOUR DOMAIN
+              - path:
+                  - "/secret-tcp-path" # REPLACE WITH A SECRET PATH
+            handle:
+              - handler: websocket2layer4
+                type: stream
+                connection_handler: ss1
+          - match:
+              - host:
+                  - 'example.com' # REPLACE WITH YOUR DOMAIN
+              - path:
+                  - "/secret-udp-path" # REPLACE WITH A SECRET PATH
+            handle:
+              - handler: websocket2layer4
+                type: packet
+                connection_handler: ss1
+  outline:
+    shadowsocks:
+      replay_history: 10000
+    connection_handlers:
+      - name: ss1
+        handle:
+          handler: shadowsocks
+          keys:
+            - id: user-1
+              cipher: chacha20-ietf-poly1305
+              secret: REPLACE_WITH_SECRET # Generate a strong secret
+

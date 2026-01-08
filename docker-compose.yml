@@ -1,0 +1,16 @@
+services:
+  caddy-outline:
+    build: .
+    restart: always
+    ports:
+      - "443:443"
+      - "80:80"
+    volumes:
+      - ./config.yaml:/etc/caddy/config.yaml
+      - caddy_data:/data
+      - caddy_config:/config
+
+volumes:
+  caddy_data:
+  caddy_config:
+
