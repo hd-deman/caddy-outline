@@ -1,17 +1,15 @@
-FROM caddy:builder AS builder
+FROM golang:1.25-alpine AS builder
 
+RUN go install github.com/caddyserver/xcaddy/cmd/xcaddy@latest
+
+WORKDIR /build
 RUN xcaddy build \
-    --with github.com/iamd3vil/caddy_yaml_adapter \
-    --with github.com/Jigsaw-Code/outline-ss-server/outlinecaddy
+  --with github.com/iamd3vil/caddy_yaml_adapter \
+  --with github.com/mholt/caddy-l4 \
+  --with github.com/Jigsaw-Code/outline-ss-server/outlinecaddy
 
-FROM caddy:alpine
+FROM alpine:3.20
 
-COPY --from=builder /usr/bin/caddy /usr/bin/caddy
+COPY --from=builder /build/caddy /usr/local/bin/caddy
 
-# Ensure we can bind low ports if needed (though 8080 is fine)
-# and update certs
-RUN apk add --no-cache ca-certificates libcap && \
-    setcap cap_net_bind_service=+ep /usr/bin/caddy
-
-# Default to running with a JSON config, which is native and safer
-CMD ["caddy", "run", "--config", "/etc/caddy/config.json"]
+ENTRYPOINT ["caddy"]
